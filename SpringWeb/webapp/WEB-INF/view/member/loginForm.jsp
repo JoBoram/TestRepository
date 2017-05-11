@@ -17,9 +17,12 @@
 	</c:if>
 
 	<form action="/member/loginProc.do" method="post">
-		<input type="text" name="memberId" value="${mBean.memberId}" /><br /> 
-		<input type="password" name="memberPw" value="${mBean.memberPw}" /><br /> 
+		ID <input type="text" name="memberId" value="${mBean.memberId}" /><br /> 
+		PW <input type="password" name="memberPw" value="${mBean.memberPw}"  required/><br /> 
 		<input type="submit" value="로그인" />
 	</form>
+	
+<a href="/member/insertMemberForm.do">회원가입</a>
+	
 </body>
 </html>

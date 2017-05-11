@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="
    http://www.springframework.org/schema/beans     
@@ -11,10 +12,14 @@
    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
    http://www.springframework.org/schema/util
    http://www.springframework.org/schema/util/spring-util-3.0.xsd
+   http://www.springframework.org/schema/aop 
+   http://www.springframework.org/schema/aop/spring-aop.xsd
+   http://www.springframework.org/schema/tx 
+   http://www.springframework.org/schema/tx/spring-tx.xsd
    ">
 
 	<mvc:annotation-driven />
-
+	<!--context:component-scan : 경로 설정 -->
 	<context:component-scan base-package="com.test.web" />
 
 	<util:properties id="config" location="classpath:/config.properties" />
@@ -40,18 +45,47 @@
 		<constructor-arg ref="sqlSessionFactory" />
 	</bean>
 
+	<!-- AOP 트랜잭션 설정 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="txPointcut"
+			expression="execution(* com.test.web.*.service.*ServiceImpl.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+	</aop:config>
+	
 	<!-- dao 스캔 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.test.web.**.dao" />
 	</bean>
-
-
+	
 	<!-- Spring 셋팅 -->
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/view/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<!-- 예외 -->
+			<mvc:exclude-mapping path="/member/*loginForm*" />
+			<mvc:exclude-mapping path="/member/*loginProc*" />
+			<mvc:exclude-mapping path="/member/*insertMember*" />
+
+			<bean class="com.test.web.common.SessionInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
 
 
 

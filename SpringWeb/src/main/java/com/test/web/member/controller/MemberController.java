@@ -1,5 +1,7 @@
 package com.test.web.member.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.test.web.common.Constants;
+import com.test.web.common.bean.PagingBean;
 import com.test.web.member.bean.MemberBean;
 import com.test.web.member.dao.MemberDao;
 
@@ -42,9 +45,10 @@ public class MemberController {
 			// 쿠키 : Client 가 가지고 있는 정보
 			// forwarding : 서버 내부 이동 model을 심는다
 			// redirect : 클라이언트 강제 이동 model이 필요없다, reset
-			req.getSession().setAttribute("memberBean", memberBean);
+			req.getSession().setAttribute(Constants.MEMBER_LOGIN_BEAN, memberBean);
 			model.addAttribute("result", "success");
-			return "redirect:/index.do";
+			model.addAttribute("memberBean", memberBean);
+			return "/member/boardFirstForm";
 		} else {
 			model.addAttribute("result", "fail");
 			return "/member/loginForm";
@@ -52,6 +56,8 @@ public class MemberController {
 
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////
+	/** DB **/
 	@RequestMapping("/member/selectMember")
 	public String selectMember(MemberBean memberBean, Model model) {
 		// DB로부터 데이터를 가져온다.
@@ -91,7 +97,7 @@ public class MemberController {
 
 		model.addAttribute(Constants.RESULT, Constants.RESULT_FAIL);
 		model.addAttribute("memberBean", memberBean);
-		
+
 		// DB insert
 		int res = memberDao.updateMember(memberBean);
 		System.out.println(res);
@@ -105,6 +111,17 @@ public class MemberController {
 		}
 
 		return "member/updateMemberForm";
+	}
+
+	/** 회원정보 리스트 표시 */
+	@RequestMapping("/member/selectMemberList")
+	public String selectMemberList(MemberBean memberBean, PagingBean pagingBean, Model model) {
+		// DB로부터 데이터를 가져온다.
+		List<MemberBean> list = memberDao.selectMemberList(memberBean);
+		// JSP로 보내기 위해서 데이터를 적재한다.
+		model.addAttribute("memberList", list);
+
+		return "/member/memberList";
 	}
 
 }

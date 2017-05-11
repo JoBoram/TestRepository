@@ -8,6 +8,6 @@
 </head>
 <body>
 	Hello Spring 
-	${secconScope.memberBean.memberId }
+	${sessionScope.memberLoginBean.memberId }
 </body>
 </html>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.test.web.board.dao.BoardDao">
+
+	<sql id="boardColumns">
+		no,
+		member_id AS memberId,
+		title AS boardTitle,
+		content AS
+		boardContent,
+		reg_date AS boardRegDate
+	</sql>
+
+
+
+	<select id="selectBoard" resultType="boardBean" parameterType="boardBean">
+		SELECT
+		<include refid="boardColumns" />
+		FROM
+		board
+		WHERE
+		no=#{no}
+	</select>
+
+	<!-- List 조회 -->
+	<select id="selectBoardList" resultType="boardBean" parameterType="pagingBean">
+	    SELECT
+	    	<include refid="boardColumns"/>
+	    FROM
+	    	board
+	    WHERE
+	    	1=1
+	    	<if test="searchType == 'id'">
+	    	    AND member_id like CONCAT('%', #{searchText}, '%')
+	    	</if>
+	    LIMIT #{startRow}, #{endRow}
+	</select>
+
+
+	<!-- 전체 레코드 갯수 조회 -->
+	<select id="selectBoardListTotalCount" resultType="int" parameterType="pagingBean">
+	    SELECT 
+	    	COUNT(*) 
+	    FROM 
+	    	board
+	    WHERE
+	    	1=1
+	    	<if test="searchType == 'id'">
+	    	    AND member_id like CONCAT('%', #{searchText}, '%')
+	    	</if>
+	</select>
+
+	<insert id="insertBoard" parameterType="boardBean">
+		INSERT INTO
+		board
+		(
+		member_id,
+		title,
+		content
+		)
+
+		VALUES
+		(
+		#{memberId},
+		#{boardTitle},
+		#{boardContent}
+		)
+	</insert>
+
+	<update id="updateBoard" parameterType="boardBean">
+		UPDATE member SET
+
+		member_name = #{memberName},
+		member_age = #{memberAge},
+		member_hp =
+		#{memberHp},
+		member_sex = #{memberSex}
+		WHERE
+		member_id = #{memberId}
+	</update>
+
+	<sql id="replyColumns">
+		no,
+		board_no AS boardNo,
+		context AS replyContent,
+		reg_date AS
+		replyRegDate
+	</sql>
+
+	<insert id="insertReply" parameterType="boardReplyBean">
+		INSERT INTO board_reply
+		(
+		board_no,
+		context
+		)
+		VALUES
+		(
+		#{boardNo},
+		#{replyContent}
+		)
+	</insert>
+
+	<select id="selectReplyList" parameterType="boardBean"
+		resultType="boardReplyBean">
+		SELECT
+		<include refid="replyColumns" />
+		FROM
+		board_reply
+		WHERE
+		board_no=#{no}
+		ORDER BY
+		no
+		DESC;
+	</select>
+
+
+</mapper>

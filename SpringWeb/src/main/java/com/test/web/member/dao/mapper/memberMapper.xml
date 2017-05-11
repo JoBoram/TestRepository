@@ -3,15 +3,21 @@
 
 <mapper namespace="com.test.web.member.dao.MemberDao">
 
-	<select id="selectMember" resultType="memberBean" parameterType="memberBean">
-		SELECT
+	<sql id="memberColumns">
 		no,
-		member_id AS memberId, member_pw AS memberPw,
-		member_name AS
-		memberName, member_age AS memberAge,
+		member_id AS memberId,
+		member_pw AS memberPw,
+		member_name
+		AS memberName,
+		member_age AS memberAge,
 		member_area AS memberArea,
 		member_hp AS memberHp,
 		member_sex AS memberSex
+	</sql>
+	<!-- 회원정보조회 -->
+	<select id="selectMember" resultType="memberBean" parameterType="memberBean">
+		SELECT
+		<include refid="memberColumns" />
 		FROM
 		member
 		WHERE
@@ -19,6 +25,14 @@
 		<if test="memberPw != null and memberPw != ''">
 			AND member_pw=PASSWORD(#{memberPw});
 		</if>
+	</select>
+	<!-- 회원정보 List 조회 -->
+	<select id="selectMemberList" resultType="memberBean"
+		parameterType="memberBean">
+		SELECT
+		<include refid="memberColumns" />
+		FROM
+		member
 	</select>
 	<!-- 회원정보 1건 저장 -->
 	<insert id="insertMember" parameterType="memberBean">
@@ -45,16 +59,17 @@
 
 	<update id="updateMember" parameterType="memberBean">
 		UPDATE member SET
-			<if test="memberPw != null and memberPw !=''">
-				member_pw = PASSWORD(#{memberPw}),
-			</if>
-			member_name = #{memberName},
-			member_age = #{memberAge},
-			member_area = #{memberArea},
-			member_hp = #{memberHp},
-			member_sex = #{memberSex}
+		<if test="memberPw != null and memberPw !=''">
+			member_pw = PASSWORD(#{memberPw}),
+		</if>
+		member_name = #{memberName},
+		member_age = #{memberAge},
+		member_area =
+		#{memberArea},
+		member_hp = #{memberHp},
+		member_sex = #{memberSex}
 		WHERE
-			member_id = #{memberId}
+		member_id = #{memberId}
 	</update>
 </mapper>
 
